@@ -263,32 +263,25 @@ void q_reverse(struct list_head *head)
  */
 struct list_head *mergeTwoLists(struct list_head *L1, struct list_head *L2)
 {
-    element_t *L1_node = container_of(L1, element_t, list);
-    element_t *L2_node = container_of(L2, element_t, list);
-    element_t *ptr = malloc(sizeof(element_t));
-    struct list_head *head = &(ptr->list);
-    while (L1 && L2) {
-        if (L1_node->value < L2_node->value) {
-            head->next = L1;
-            L1 = L1->next;
-        } else {
-            head->next = L2;
-            L2 = L2->next;
-        }
-        head = head->next;
+    struct list_head *head = NULL, **ptr = &head, **node;
+    for (node = NULL; L1 && L2; *node = (*node)->next) {
+        element_t *L1_node = container_of(L1, element_t, list);
+        element_t *L2_node = container_of(L2, element_t, list);
+        node = (strcmp(L1_node->value, L2_node->value) <= 0) ? &L1 : &L2;
+        *ptr = *node;
+        ptr = &(*ptr)->next;
     }
-    head->next = L1 ? L1 : L2;
-    return head->next;
+    *ptr = (struct list_head *) ((uintptr_t) L1 | (uintptr_t) L2);
+    return head;
 }
 
 struct list_head *mergesort_list(struct list_head *head)
 {
-    if (head->next == head)
+    if (!head->next)
         return head;
-
     struct list_head *slow = head;
-    for (struct list_head *fast = head->next;
-         fast != head && fast->next != head; fast = fast->next->next)
+    for (struct list_head *fast = head->next; fast && fast->next;
+         fast = fast->next->next)
         slow = slow->next;
     struct list_head *mid = slow->next;
     slow->next = NULL;
@@ -300,6 +293,13 @@ struct list_head *mergesort_list(struct list_head *head)
 
 void q_sort(struct list_head *head)
 {
-    if (head->next == head)
+    if (!head || list_empty(head))
         return;
+    head->prev->next = NULL;
+    head->next = mergesort_list(head->next);
+    struct list_head *ptr = head;
+    for (; ptr->next; ptr = ptr->next)
+        ptr->next->prev = ptr;
+    ptr->next = head;
+    head->prev = ptr;
 }
