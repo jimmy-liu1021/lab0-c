@@ -280,7 +280,6 @@ void q_reverse(struct list_head *head)
     ptr->next = ptr->prev;
     ptr->prev = tmp;
 }
-
 /*
  * Sort elements of queue in ascending order
  * No effect if q is NULL or empty. In addition, if q has only one
@@ -299,7 +298,6 @@ struct list_head *mergeTwoLists(struct list_head *L1, struct list_head *L2)
     *ptr = (struct list_head *) ((uintptr_t) L1 | (uintptr_t) L2);
     return head;
 }
-
 struct list_head *mergesort_list(struct list_head *head)
 {
     if (!head->next)
